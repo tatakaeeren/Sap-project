@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BuildRight R2R — Record-to-Report Command Center</title>
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+
+<!-- ══════════════════════ SAP SHELLBAR ══════════════════════ -->
+<header class="sap-shellbar">
+  <div class="shell-product-name">
+    <div class="shell-logo">BR</div>
+    <div class="shell-app-title">
+      <p class="kicker">BuildRight Enterprise Suite</p>
+      <strong>Financial Accounting · R2R</strong>
+    </div>
+  </div>
+  <nav class="shell-nav">
+    <button class="shell-nav-item active" data-section="overview">Overview</button>
+    <button class="shell-nav-item" data-section="master">Master Data</button>
+    <button class="shell-nav-item" data-section="transactions">Transactions</button>
+    <button class="shell-nav-item" data-section="trialbalance">Trial Balance</button>
+    <button class="shell-nav-item" data-section="statements">Financials</button>
+    <button class="shell-nav-item" data-section="close">Period Close</button>
+  </nav>
+  <div class="shell-right">
+    <span class="shell-chip">Client 100</span>
+    <span class="shell-chip">Company BR01</span>
+    <span class="shell-chip highlight">FY 2026</span>
+  </div>
+</header>
+
+<!-- ══════════════════════ APP LAYOUT ══════════════════════ -->
+<div class="app-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="company-badge">
+        <div class="company-icon">FI</div>
+        <div>
+          <div class="company-name">BuildRight Construction Pvt. Ltd.</div>
+          <div class="company-sub">CoCd BR01 · BRCOA · Period 1 FY2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">R2R Process Steps</div>
+    <nav class="nav">
+      <button class="nav-item active" data-section="overview">
+        <span class="nav-icon">📊</span> Overview Dashboard
+      </button>
+      <button class="nav-item" data-section="master">
+        <span class="nav-icon">📋</span> Master Data
+      </button>
+      <button class="nav-item" data-section="transactions">
+        <span class="nav-icon">✏️</span> Journal Entries
+      </button>
+      <button class="nav-item" data-section="trialbalance">
+        <span class="nav-icon">⚖️</span> Trial Balance
+      </button>
+      <button class="nav-item" data-section="statements">
+        <span class="nav-icon">📈</span> Financial Statements
+      </button>
+      <button class="nav-item" data-section="close">
+        <span class="nav-icon">🔒</span> Period / Year-End Close
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="progress-widget">
+        <div class="progress-label">R2R Cycle Progress</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-pct" id="progressPct">0% complete</div>
+      </div>
+      <button class="btn-ghost" id="resetBtn">↺ Reset All Data</button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════ MAIN PANEL ══════════════════════ -->
+  <main class="main-panel">
+    <div class="topbar">
+      <div class="topbar-left">
+        <p class="eyebrow">SAP FI · Record-to-Report · Month-End / Year-End Financial Close</p>
+        <h2>R2R Command Center — BuildRight FY 2026</h2>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-secondary" id="seedBtn">▶ Load Demo Data</button>
+        <button class="btn-primary" id="exportBtn">↓ Export Snapshot</button>
+      </div>
+    </div>
+
+    <div class="context-bar">
+      <span>Module: Financial Accounting (FI)</span>
+      <span>Scenario: Record-to-Report</span>
+      <span>Period: April 2026 (Period 1)</span>
+      <span>Currency: INR</span>
+      <span>Fiscal Variant: K4</span>
+    </div>
+
+    <div id="systemBanner" class="system-banner neutral" style="margin:16px 20px 0;">Connecting to backend…</div>
+
+    <!-- ══ OVERVIEW ══ -->
+    <section class="section active" id="overview">
+      <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px;">
+        <div class="hero-card">
+          <p class="hero-eyebrow">SAP FI — Record-to-Report Process</p>
+          <h3 class="hero-title">Month-End &amp; Year-End Financial Close Simulation</h3>
+          <p class="hero-desc">Complete R2R cycle for BuildRight Construction Pvt. Ltd. — from initial journal entry posting through GL reconciliation, depreciation run, accruals, trial balance validation, and period close to generate auditable financial statements.</p>
+          <div class="hero-tags">
+            <span class="hero-tag">FB50 Journal Entries</span>
+            <span class="hero-tag">AFAB Depreciation</span>
+            <span class="hero-tag">FBS1 Accruals</span>
+            <span class="hero-tag">F.08 Trial Balance</span>
+            <span class="hero-tag">OB52 Period Close</span>
+            <span class="hero-tag">F.01 Financials</span>
+          </div>
+        </div>
+        <div class="match-widget">
+          <div class="sidebar-section-label" style="margin-bottom:10px;">Financial Summary</div>
+          <div class="match-grid">
+            <div class="match-cell">
+              <div class="mc-label">Revenue</div>
+              <div class="mc-value" id="sumRevenue" style="font-size:16px;color:#107e3e;">₹0</div>
+            </div>
+            <div class="match-cell">
+              <div class="mc-label">Net Income</div>
+              <div class="mc-value" id="sumPAT" style="font-size:16px;color:#0070f2;">₹0</div>
+            </div>
+            <div class="match-cell">
+              <div class="mc-label">TB Status</div>
+              <div class="mc-value" id="sumTBStatus" style="font-size:13px;color:#556b82;">Pending</div>
+            </div>
+          </div>
+          <div id="overviewMatchPill" class="pill neutral" style="width:100%;justify-content:center;margin-top:4px;">Awaiting entries</div>
+        </div>
+      </div>
+
+      <div class="grid-4">
+        <div class="stat-card blue">
+          <div class="stat-label">Total JE Postings</div>
+          <div class="stat-value" id="metricJE">0</div>
+          <div class="stat-sub">Journal entries posted</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Total Debits</div>
+          <div class="stat-value" id="metricDebits">₹0</div>
+          <div class="stat-sub">Aggregate debit postings</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Net Income (PAT)</div>
+          <div class="stat-value" id="metricPAT">₹0</div>
+          <div class="stat-sub">Profit after tax</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Period Status</div>
+          <div class="stat-value" id="metricPeriod" style="font-size:16px;">Open</div>
+          <div class="stat-sub">Posting period state</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="ph-label">Process Flow</p>
+            <h3>R2R Lifecycle Monitor</h3>
+          </div>
+          <span id="overviewReconPill" class="pill neutral">0 / 8 steps</span>
+        </div>
+        <div class="panel-body-sm">
+          <div id="timeline" class="timeline"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ MASTER DATA ══ -->
+    <section class="section" id="master">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div><p class="ph-label">Enterprise Structure</p><h3>Organizational Data</h3></div></div>
+          <div class="panel-body">
+            <div class="data-grid" id="orgDataGrid"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div><p class="ph-label">Chart of Accounts — BRCOA</p><h3>GL Account Master</h3></div></div>
+          <div class="panel-body" style="max-height:400px;overflow-y:auto;">
+            <div id="glAccountList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div><p class="ph-label">Controlling</p><h3>Cost Center Master</h3></div></div>
+        <div class="panel-body">
+          <div class="grid-4" id="costCenterGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TRANSACTIONS ══ -->
+    <section class="section" id="transactions">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="ph-label">Transaction Entry</p>
+            <h3>Post Journal Entries and Period Transactions</h3>
+          </div>
+        </div>
+        <div class="txn-tabs">
+          <button class="txn-tab active" data-txn="je">FB50 Journal Entry</button>
+          <button class="txn-tab" data-txn="accrual">FBS1 Accrual</button>
+          <button class="txn-tab" data-txn="depreciation">AFAB Depreciation</button>
+          <button class="txn-tab" data-txn="adj">F-02 Adjustment</button>
+          <button class="txn-tab" data-txn="close">OB52 Period Close</button>
+        </div>
+        <div class="txn-forms">
+
+          <!-- FB50 Journal Entry -->
+          <form class="txn-form active" id="form-je">
+            <p class="form-section-label">FB50 — General Ledger Journal Entry</p>
+            <div class="dc-entry">
+              <div class="dc-header">
+                <div class="dc-side dc-debit">Debit (Dr)</div>
+                <div class="dc-side dc-credit">Credit (Cr)</div>
+              </div>
+              <div class="dc-body">
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label form-required">Debit GL Account</label>
+                    <select name="debitAccount" class="form-select" id="je-debit-select"></select>
+                  </div>
+                </div>
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label form-required">Credit GL Account</label>
+                    <select name="creditAccount" class="form-select" id="je-credit-select"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label form-required">Amount (INR)</label>
+                <input name="amount" type="number" min="1" class="form-input" placeholder="Enter amount" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label form-required">Posting Date</label>
+                <input name="postingDate" type="date" class="form-input" value="2026-04-30" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cost Center</label>
+                <select name="costCenter" class="form-select" id="je-cc-select"></select>
+              </div>
+              <div class="form-group" style="grid-column:span 3;">
+                <label class="form-label form-required">Description / Reference</label>
+                <input name="description" type="text" class="form-input" placeholder="e.g. Revenue recognition - Q1 contract" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Posting Period</label>
+                <input name="period" class="form-input" value="Period 1 - April 2026" />
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Post Journal Entry (FB50)</button>
+          </form>
+
+          <!-- FBS1 Accrual -->
+          <form class="txn-form" id="form-accrual">
+            <p class="form-section-label">FBS1 — Accrual / Deferral Entry</p>
+            <div class="dc-entry">
+              <div class="dc-header">
+                <div class="dc-side dc-debit">Debit (Dr) — Expense/Asset</div>
+                <div class="dc-side dc-credit">Credit (Cr) — Accrued Liability</div>
+              </div>
+              <div class="dc-body">
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label form-required">Debit GL Account</label>
+                    <select name="debitAccount" class="form-select" id="accrual-debit-select"></select>
+                  </div>
+                </div>
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label form-required">Credit GL Account</label>
+                    <select name="creditAccount" class="form-select" id="accrual-credit-select"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label form-required">Accrual Amount (INR)</label>
+                <input name="amount" type="number" min="1" class="form-input" placeholder="Accrual amount" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label form-required">Posting Date</label>
+                <input name="postingDate" type="date" class="form-input" value="2026-04-30" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cost Center</label>
+                <select name="costCenter" class="form-select" id="accrual-cc-select"></select>
+              </div>
+              <div class="form-group" style="grid-column:span 3;">
+                <label class="form-label form-required">Accrual Description</label>
+                <input name="description" type="text" class="form-input" placeholder="e.g. Accrual for rent - April 2026" required />
+              </div>
+              <input type="hidden" name="period" value="Period 1 - April 2026" />
+            </div>
+            <button type="submit" class="btn-primary">Post Accrual Entry (FBS1)</button>
+          </form>
+
+          <!-- AFAB Depreciation -->
+          <form class="txn-form" id="form-depreciation">
+            <p class="form-section-label">AFAB — Depreciation Run</p>
+            <div class="dc-entry">
+              <div class="dc-header">
+                <div class="dc-side dc-debit">Debit — Depreciation Expense (620000)</div>
+                <div class="dc-side dc-credit">Credit — Accumulated Depreciation (210000)</div>
+              </div>
+              <div class="dc-body">
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label">Debit Account</label>
+                    <input class="form-input" value="620000 — Depreciation Expense" readonly style="background:#f8f9fa;" />
+                    <input type="hidden" name="debitAccount" value="620000" />
+                  </div>
+                </div>
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label">Credit Account</label>
+                    <input class="form-input" value="210000 — Accumulated Depreciation" readonly style="background:#f8f9fa;" />
+                    <input type="hidden" name="creditAccount" value="210000" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label form-required">Depreciation Amount (INR)</label>
+                <input name="amount" type="number" min="1" class="form-input" placeholder="Monthly depreciation" value="8500" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label form-required">Run Date</label>
+                <input name="postingDate" type="date" class="form-input" value="2026-04-30" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cost Center</label>
+                <select name="costCenter" class="form-select" id="dep-cc-select"></select>
+              </div>
+              <div class="form-group" style="grid-column:span 3;">
+                <label class="form-label">Description</label>
+                <input name="description" type="text" class="form-input" value="Monthly depreciation run - fixed assets (AFAB)" />
+              </div>
+              <input type="hidden" name="period" value="Period 1 - April 2026" />
+            </div>
+            <button type="submit" class="btn-primary">Execute Depreciation Run (AFAB)</button>
+          </form>
+
+          <!-- F-02 Adjustment -->
+          <form class="txn-form" id="form-adj">
+            <p class="form-section-label">F-02 — Manual Adjustment / Reclassification Entry</p>
+            <div class="dc-entry">
+              <div class="dc-header">
+                <div class="dc-side dc-debit">Debit (Dr)</div>
+                <div class="dc-side dc-credit">Credit (Cr)</div>
+              </div>
+              <div class="dc-body">
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label form-required">Debit GL Account</label>
+                    <select name="debitAccount" class="form-select" id="adj-debit-select"></select>
+                  </div>
+                </div>
+                <div class="dc-cell">
+                  <div class="form-group">
+                    <label class="form-label form-required">Credit GL Account</label>
+                    <select name="creditAccount" class="form-select" id="adj-credit-select"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label form-required">Adjustment Amount (INR)</label>
+                <input name="amount" type="number" min="1" class="form-input" placeholder="Amount" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label form-required">Posting Date</label>
+                <input name="postingDate" type="date" class="form-input" value="2026-04-30" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cost Center</label>
+                <select name="costCenter" class="form-select" id="adj-cc-select"></select>
+              </div>
+              <div class="form-group" style="grid-column:span 3;">
+                <label class="form-label form-required">Adjustment Reason</label>
+                <input name="description" type="text" class="form-input" placeholder="e.g. Reclassify prepaid insurance to expense" required />
+              </div>
+              <input type="hidden" name="period" value="Period 1 - April 2026" />
+            </div>
+            <button type="submit" class="btn-primary">Post Adjustment (F-02)</button>
+          </form>
+
+          <!-- OB52 Period Close -->
+          <form class="txn-form" id="form-close">
+            <p class="form-section-label">OB52 — Posting Period Management / Period Close</p>
+            <div class="form-grid form-grid-2">
+              <div class="form-group">
+                <label class="form-label form-required">Close Type</label>
+                <select name="closeType" class="form-select">
+                  <option value="month-end">Month-End Close</option>
+                  <option value="year-end">Year-End Close</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label form-required">Posting Period</label>
+                <input name="period" class="form-input" value="Period 1 - April 2026" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fiscal Year</label>
+                <input name="fiscalYear" class="form-input" value="2026" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Closed By (Controller)</label>
+                <input name="closedBy" class="form-input" value="Finance Controller - BR01" />
+              </div>
+            </div>
+            <div class="alert-card warning" style="margin-bottom:14px;">
+              <h4>Pre-requisites for Period Close</h4>
+              <p>All journal entries must be posted, trial balance must be balanced, and all reconciliation items must be resolved before executing period close.</p>
+            </div>
+            <button type="submit" class="btn-success">Execute Period Close (OB52)</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- JE Ledger -->
+      <div class="panel">
+        <div class="panel-header">
+          <div><p class="ph-label">FI Document Log</p><h3>Posted Journal Entries</h3></div>
+          <span id="jeLedgerCount" class="pill neutral">0 entries</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>JE Number</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Dr Account</th>
+                <th>Cr Account</th>
+                <th>Amount</th>
+                <th>Cost Center</th>
+                <th>Posting Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="jeLedgerBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TRIAL BALANCE ══ -->
+    <section class="section" id="trialbalance">
+      <div class="panel">
+        <div class="panel-header">
+          <div><p class="ph-label">F.08 — Trial Balance</p><h3>GL Account Balances — Period 1 FY2026</h3></div>
+          <div id="tbBalancedBadge" class="tb-balanced-badge" style="display:none;"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>GL Account</th>
+                <th>Account Name</th>
+                <th style="text-align:right;">Total Debit (INR)</th>
+                <th style="text-align:right;">Total Credit (INR)</th>
+                <th style="text-align:right;">Net Balance</th>
+              </tr>
+            </thead>
+            <tbody id="tbBody"></tbody>
+          </table>
+          <div class="table-footer">
+            <span>Grand Total</span>
+            <span>Dr: <strong id="tbTotalDebit">₹0</strong> &nbsp;|&nbsp; Cr: <strong id="tbTotalCredit">₹0</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div><p class="ph-label">FAGLF03 — GL Reconciliation</p><h3>Reconciliation Checklist</h3></div></div>
+          <div class="panel-body">
+            <div id="reconChecklist"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div><p class="ph-label">Variance Analysis</p><h3>Exception Alerts</h3></div></div>
+          <div class="panel-body" id="tbAlerts"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FINANCIAL STATEMENTS ══ -->
+    <section class="section" id="statements">
+      <div class="grid-2">
+        <div>
+          <div class="fs-card">
+            <div class="fs-header">
+              <span>Profit &amp; Loss Statement — April 2026</span>
+              <span class="pill info">F.01</span>
+            </div>
+            <div class="fs-row"><span>Revenue from Operations</span><span id="fs-revenue" class="fs-positive">₹0</span></div>
+            <div class="fs-row indent"><span>Other Income</span><span id="fs-otherincome" class="fs-neutral">₹0</span></div>
+            <div class="fs-row subtotal"><span>Total Revenue</span><span id="fs-totalrev" class="fs-positive">₹0</span></div>
+            <div class="fs-row indent"><span>Cost of Goods Sold</span><span id="fs-cogs" class="fs-negative">₹0</span></div>
+            <div class="fs-row subtotal"><span>Gross Profit</span><span id="fs-gp" class="fs-positive">₹0</span></div>
+            <div class="fs-row indent"><span>Salaries &amp; Wages</span><span id="fs-salaries" class="fs-negative">₹0</span></div>
+            <div class="fs-row indent"><span>Depreciation</span><span id="fs-dep" class="fs-negative">₹0</span></div>
+            <div class="fs-row indent"><span>Administrative Expenses</span><span id="fs-admin" class="fs-negative">₹0</span></div>
+            <div class="fs-row subtotal"><span>EBIT (Operating Profit)</span><span id="fs-ebit" class="fs-positive">₹0</span></div>
+            <div class="fs-row indent"><span>Finance Costs</span><span id="fs-finance" class="fs-negative">₹0</span></div>
+            <div class="fs-row subtotal"><span>Profit Before Tax (PBT)</span><span id="fs-pbt" class="fs-positive">₹0</span></div>
+            <div class="fs-row indent"><span>Tax Expense</span><span id="fs-tax" class="fs-negative">₹0</span></div>
+            <div class="fs-row total"><span>Profit After Tax (PAT)</span><span id="fs-pat" class="fs-positive">₹0</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="fs-card" style="margin-bottom:18px;">
+            <div class="fs-header">
+              <span>Balance Sheet Summary — April 2026</span>
+              <span class="pill info">F.01</span>
+            </div>
+            <div class="fs-row"><span>Total Assets</span><span id="bs-assets" class="fs-neutral">₹0</span></div>
+            <div class="fs-row"><span>Total Liabilities</span><span id="bs-liabilities" class="fs-negative">₹0</span></div>
+            <div class="fs-row"><span>Total Equity</span><span id="bs-equity" class="fs-positive">₹0</span></div>
+            <div class="fs-row total">
+              <span>Balance Sheet Check</span>
+              <span id="bs-check" class="pill neutral">Pending</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header"><div><p class="ph-label">Evaluator Highlights</p><h3>Project Readiness</h3></div></div>
+            <div class="panel-body">
+              <ul style="padding-left:18px;display:grid;gap:8px;font-size:13px;color:var(--text-muted);line-height:1.6;">
+                <li>Full SAP FI R2R cycle — FB50 to F.01 in one workspace.</li>
+                <li>Real double-entry journal posting with GL account validation.</li>
+                <li>Auto-generated Trial Balance with balanced/unbalanced detection.</li>
+                <li>Live P&amp;L and Balance Sheet computed from posted entries.</li>
+                <li>Month-end and year-end close with 8-step checklist verification.</li>
+                <li>Depreciation run (AFAB) and accrual entry (FBS1) simulation.</li>
+                <li>FAGLF03 reconciliation status with exception alerts.</li>
+                <li>Persistent SQLite storage with demo data loader and export.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PERIOD CLOSE ══ -->
+    <section class="section" id="close">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div><p class="ph-label">OB52 / FAGLGVTR</p><h3>Period Close History</h3></div></div>
+          <div class="panel-body" id="closeHistory">
+            <div class="empty-state">
+              <div class="es-icon">🔒</div>
+              <p>No period closes executed yet.</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div><p class="ph-label">Close Checklist</p><h3>Month-End Closing Steps</h3></div></div>
+          <div class="panel-body" id="closeChecklist"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Timeline Template -->
+<template id="tlItemTpl">
+  <div class="timeline-item">
+    <div class="tl-marker-col">
+      <div class="tl-marker"></div>
+    </div>
+    <div class="tl-content">
+      <div class="tl-header">
+        <span class="tl-title"></span>
+        <span class="tl-code"></span>
+        <span class="pill neutral tl-status"></span>
+      </div>
+      <p class="tl-meta"></p>
+    </div>
+  </div>
+</template>
+
+<script src="scripts/app.js"></script>
+</body>
+</html>
